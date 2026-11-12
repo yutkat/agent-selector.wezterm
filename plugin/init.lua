@@ -60,7 +60,10 @@ end
 -- executable path of the pane's foreground process. The executable path
 -- alone is not enough: version-managed installs resolve through symlinks
 -- (e.g. ~/.local/bin/claude -> .../versions/2.1.199), so only comm and
--- argv[0] keep the invoked name.
+-- argv[0] keep the invoked name. Descendants are checked too, because
+-- wrapper scripts that cannot exec (e.g. ones doing post-processing) leave
+-- the agent as a child of the foreground process. exe_path describes the
+-- root only.
 local function matches_process(agent, info, exe_path)
 	local candidates = { exe_path }
 	if info then
@@ -75,7 +78,18 @@ local function matches_process(agent, info, exe_path)
 			return true
 		end
 	end
-	return info ~= nil and script_stem_matches(info.argv, agent.process)
+	if info == nil then
+		return false
+	end
+	if script_stem_matches(info.argv, agent.process) then
+		return true
+	end
+	for _, child in pairs(info.children or {}) do
+		if matches_process(agent, child, nil) then
+			return true
+		end
+	end
+	return false
 end
 
 -- Whole-word title match, so short agent names like "pi" or "amp" do

@@ -45,7 +45,9 @@ agent_selector.setup({
   so the invoked name only survives in comm/argv). For scripts run by a
   known interpreter (node, bun, deno, python, ruby) the script's
   extension-stripped basename is also compared, so an npm-installed
-  `codex` (`node .../codex.js`) still matches.
+  `codex` (`node .../codex.js`) still matches. Descendants of the
+  foreground process are matched too, so agents started via wrapper
+  scripts (e.g. a bash wrapper that runs `claude` as a child) are found.
 - `busy_pattern`: optional Lua pattern (or list of patterns) matched
   against the last 10 non-empty lines of the visible pane text (agent
   busy footers live at the bottom; scanning the whole screen would
