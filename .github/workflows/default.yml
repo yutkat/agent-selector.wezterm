@@ -11,7 +11,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: latest
-          args: --color always --check plugin
+          args: --color always --check plugin test
   selene:
     name: selene
     runs-on: ubuntu-latest
@@ -21,4 +21,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: 0.31.0
-          args: plugin
+          args: plugin test
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - run: lua5.4 test/run.lua
